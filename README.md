@@ -4,7 +4,7 @@ Setup a BitTorrent downloader server on linux boxes automatically.
 
 - Platform: Debian Linux 8.x/9.x (tested on PC & Raspberry Pi, OSMC)
 - Ver: 0.1
-- Updated: 10/14/2017
+- Updated: 10/15/2017
 - Created: 10/14/2017
 - Author: loblab
 

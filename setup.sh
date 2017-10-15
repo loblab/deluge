@@ -46,13 +46,13 @@ function setup_user() {
         return 0
     fi
     if id "debian-deluged" >/dev/null 2>&1; then
-        log_msg "Rename user/group 'debian-deluged' to 'deluge'..."
-        sudo usermod -l deluge debian-deluged
-        sudo groupmod -n deluge debian-deluged
-    else
-        log_msg "Create user/group 'deluge'..."
-        sudo adduser --system  --gecos "Deluge Service" --disabled-password --group --home /var/lib/deluge deluge
+        log_msg "Delete user/group 'debian-deluged'..."
+        sudo deluser debian-deluged
+        #sudo delgroup debian-deluged
+        sudo sed -i '/debian-deluged/d' /var/lib/dpkg/statoverride
     fi
+    log_msg "Create user/group 'deluge'..."
+    sudo adduser --system  --gecos "Deluge Service" --disabled-password --group --home /var/lib/deluge deluge
     log_msg "Add $MY_ACCOUNT to group 'deluge'"
     sudo adduser $MY_ACCOUNT deluge
     log_msg "Setup deluge user/group... done"
