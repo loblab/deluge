@@ -15,6 +15,7 @@
 
 set -e
 PROG_DIR=$(dirname $0)
+[ "$(whoami)" == "root" ] || SUDO=sudo
 
 function log_msg() {
     echo $(date +'%m/%d %H:%M:%S') - $*
@@ -22,20 +23,20 @@ function log_msg() {
 
 function install_system_packages() {
     log_msg "Install system packages..."
-    sudo apt-get -y install deluged deluge-web
+    $SUDO apt -y install deluged deluge-web
     log_msg "Install system packages... done."
 }
 
 function cleanup_default_installation() {
     log_msg "Cleanup default installation..."
     if [ -f /etc/init.d/deluged ]; then
-        sudo /etc/init.d/deluged stop
-        sudo rm /etc/init.d/deluged
-        sudo update-rc.d deluged remove
+        $SUDO /etc/init.d/deluged stop
+        $SUDO rm /etc/init.d/deluged
+        $SUDO update-rc.d deluged remove
     fi
  
-    sudo rm -rf /var/log/deluged
-    sudo rm -f /etc/logrotate.d/deluged
+    $SUDO rm -rf /var/log/deluged
+    $SUDO rm -f /etc/logrotate.d/deluged
     log_msg "Cleanup default installation... done"
 }
 
@@ -47,36 +48,36 @@ function setup_user() {
     fi
     if id "debian-deluged" >/dev/null 2>&1; then
         log_msg "Delete user/group 'debian-deluged'..."
-        sudo deluser debian-deluged
-        #sudo delgroup debian-deluged
-        sudo sed -i '/debian-deluged/d' /var/lib/dpkg/statoverride
+        $SUDO deluser debian-deluged
+        #$SUDO delgroup debian-deluged
+        $SUDO sed -i '/debian-deluged/d' /var/lib/dpkg/statoverride
     fi
     log_msg "Create user/group 'deluge'..."
-    sudo adduser --system  --gecos "Deluge Service" --disabled-password --group --home /var/lib/deluge deluge
+    $SUDO adduser --system  --gecos "Deluge Service" --disabled-password --group --home /var/lib/deluge deluge
     log_msg "Add $MY_ACCOUNT to group 'deluge'"
-    sudo adduser $MY_ACCOUNT deluge
+    $SUDO adduser $MY_ACCOUNT deluge
     log_msg "Setup deluge user/group... done"
 }
 
 function setup_service() {
     log_msg "Install deluge services..."
  
-    sudo mkdir -p /var/log/deluge
-    sudo chown -R deluge:deluge /var/log/deluge
-    sudo chmod -R 750 /var/log/deluge
+    $SUDO mkdir -p /var/log/deluge
+    $SUDO chown -R deluge:deluge /var/log/deluge
+    $SUDO chmod -R 750 /var/log/deluge
 
-    sudo cp $PROG_DIR/*.service /etc/systemd/system/
-    sudo cp $PROG_DIR/logrotate.conf /etc/logrotate.d/deluge
+    $SUDO cp $PROG_DIR/*.service /etc/systemd/system/
+    $SUDO cp $PROG_DIR/logrotate.conf /etc/logrotate.d/deluge
 
-    sudo systemctl enable deluged
-    sudo systemctl enable deluge-web
+    $SUDO systemctl enable deluged
+    $SUDO systemctl enable deluge-web
     log_msg "Install deluge services... done"
 
     log_msg "Start deluge services..."
-    sudo systemctl start deluged
-    sudo systemctl status deluged
-    sudo systemctl start deluge-web
-    sudo systemctl status deluge-web
+    $SUDO systemctl start deluged
+    $SUDO systemctl status deluged
+    $SUDO systemctl start deluge-web
+    $SUDO systemctl status deluge-web
     log_msg "Start deluge services... done"
 }
 
